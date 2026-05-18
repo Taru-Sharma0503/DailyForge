@@ -9,7 +9,14 @@ const priorityStyles = {
   High: "border-red-500 bg-red-50 dark:bg-red-950/20",
 };
 
-export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
+export default function TaskItem({
+  task,
+  onToggleComplete,
+  onDelete,
+  onUpdate,
+  isSelected,
+  onSelect,
+}) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -46,6 +53,12 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               transition-transform duration-150
               ${isCompleted ? "bg-(--primary) text-white" : "bg-white dark:bg-slate-800"}
             `}
+            aria-label={
+              isCompleted
+                ? `Mark "${task.title}" as incomplete`
+                : `Mark "${task.title}" as complete`
+            }
+            aria-pressed={isCompleted}
           >
             {isCompleted && <Check size={18} />}
           </button>
@@ -61,7 +74,9 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             </p>
 
             <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
-              <span className="uppercase tracking-wide">{task.priority} priority</span>
+              <span className="uppercase tracking-wide">
+                {task.priority} priority
+              </span>
 
               {task.dueDate && (
                 <span className="flex items-center gap-1">
@@ -99,14 +114,16 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             <button
               onClick={() => setIsEditModalOpen(true)}
               className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+              aria-label={`Edit task: ${task.title}`}
             >
               <Pencil size={18} className="text-main" />
             </button>
 
             {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
             <button
-              onClick={()=> onDelete(task._id)}
+              onClick={() => onDelete(task._id)}
               className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
+              aria-label={`Delete task: ${task.title}`}
             >
               <Trash2 size={18} className="text-red-500" />
             </button>
