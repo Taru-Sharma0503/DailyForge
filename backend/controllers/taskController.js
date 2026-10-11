@@ -8,6 +8,7 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const DEFAULT_TASK_PAGE = 1;
 const DEFAULT_TASK_LIMIT = 10;
 const MIN_TASK_LIMIT = 1;
+const MAX_TASK_LIMIT = 50;
 
 // Create task function
 export const createTask = async (req, res) => {
@@ -35,7 +36,15 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const { title, description, tags, priority, status, dueDate } = req.body;
+    const {
+      title,
+      description,
+      tags,
+      priority,
+      status,
+      dueDate,
+      dependsOn,
+    } = req.body;
 
     if (!title || !priority || !status || !dueDate) {
       return res.status(400).json({
@@ -85,6 +94,8 @@ export const createTask = async (req, res) => {
     }
 
     // new task object
+    const { recurrence } = req.body;
+
     const newTask = new Task({
       userId,
       title,
@@ -93,15 +104,18 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      dependsOn,
       completedAt: status === "Completed" ? new Date() : null,
+      recurrence: recurrence || { enabled: false },
     });
 
     // save task in database
     await newTask.save();
 
     return res.status(201).json({
+      success: true,
       message: "Task added successfully",
-      newTask,
+      task: newTask,
     });
   } catch (error) {
     // error handling
@@ -132,16 +146,23 @@ export const getTasks = async (req, res) => {
       Number.parseInt(req.query.page, 10) || DEFAULT_TASK_PAGE,
       DEFAULT_TASK_PAGE
     );
-    const limit = Math.max(
-      Number.parseInt(req.query.limit, 10) || DEFAULT_TASK_LIMIT,
-      MIN_TASK_LIMIT
+    const limit = Math.min(
+      Math.max(
+        Number.parseInt(req.query.limit, 10) || DEFAULT_TASK_LIMIT,
+        MIN_TASK_LIMIT
+      ),
+      MAX_TASK_LIMIT
     );
     const skip = (page - 1) * limit;
     const taskQuery = { userId };
 
     // fetch paginated tasks from database
     const [tasks, totalTasks] = await Promise.all([
-      Task.find(taskQuery).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Task.find(taskQuery)
+        .populate("dependsOn", "title status")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
       Task.countDocuments(taskQuery),
     ]);
 
@@ -200,14 +221,41 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    // fetch update task details
-    const updates = req.body;
+    // fetch update task details, strip protected fields to prevent mass assignment
+    const updates = { ...req.body };
+    delete updates.userId;
+    delete updates._id;
 
     // validate title length if title is being updated
     if (updates.title && updates.title.trim().length > 50) {
       return res.status(400).json({
         success: false,
         message: "Title must be 50 characters or less",
+      });
+    }
+
+
+
+    const existingTask = await Task.findOne({
+      _id: taskId,
+      userId,
+    }).populate("dependsOn");
+
+    if (!existingTask) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    if (
+      updates.status === "Completed" &&
+      existingTask.dependsOn &&
+      existingTask.dependsOn.status !== "Completed"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Complete prerequisite task first",
       });
     }
 
@@ -227,11 +275,13 @@ export const updateTask = async (req, res) => {
 
     if (!updatedTask) {
       return res.status(404).json({
+        success: false,
         message: "Task not found",
       });
     }
 
     return res.status(200).json({
+      success: true,
       message: "Task updated successfully",
       task: updatedTask,
     });
@@ -278,11 +328,25 @@ export const deleteTask = async (req, res) => {
 
     if (!deletedTask) {
       return res.status(404).json({
+        success: false,
         message: "Task not found",
       });
     }
 
+    // Clean up routines that might reference this task
+    await Routine.updateMany(
+      { userId },
+      {
+        $pull: {
+          items: {
+            taskId: taskId,
+          },
+        },
+      }
+    );
+
     return res.status(200).json({
+      success: true,
       message: "Task deleted successfully",
     });
   } catch (error) {

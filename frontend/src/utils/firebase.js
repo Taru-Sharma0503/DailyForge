@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
+console.log("Firebase API Key:", import.meta.env.VITE_FIREBASE_API_KEY);
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -14,23 +16,19 @@ let app = null;
 let auth = null;
 let googleProvider = null;
 
-// Only initialize Firebase if an API key is provided
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "your_firebase_api_key") {
-  // Initialize Firebase
+try {
   app = initializeApp(firebaseConfig);
-
-  // Initialize Firebase Auth and Google Provider
   auth = getAuth(app);
   googleProvider = new GoogleAuthProvider();
 
-  // Request profile and email scopes (standard for Google Sign-In)
   googleProvider.addScope("profile");
   googleProvider.addScope("email");
 
-  // Force account selection screen
   googleProvider.setCustomParameters({
     prompt: "select_account",
   });
+} catch (error) {
+  console.error("Firebase initialization failed. Please check your .env file configuration.", error);
 }
 
 export { auth, googleProvider };

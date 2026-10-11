@@ -32,7 +32,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
       if (dayIndex < data.length) {
         const date = data[dayIndex].date;
         const monthName = date.toLocaleDateString("en-US", { month: "short" });
-        
+
         // If first column or month changes compared to previous week column
         if (w === 0 || (w > 0 && data[(w - 1) * 7].date.getMonth() !== date.getMonth())) {
           labels.push({
@@ -91,18 +91,18 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
   };
 
   return (
-    <div ref={cardRef} className="card w-full border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-6 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300">
-      
+    <div ref={cardRef} className="card w-full border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-4 sm:p-6 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300">
+
       {/* Background radial soft light for aesthetic premium look */}
       <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#14b8a6]/5 rounded-full blur-[100px] pointer-events-none" />
-      
+
       {/* Tooltip Popup (Dynamic Absolute Positioning relative to Card) */}
       <AnimatePresence>
         {hoveredDay && (() => {
           const colIdx = hoveredDay.colIdx ?? 26;
           let translateX = "-50%";
           let arrowLeft = "50%";
-          
+
           if (colIdx < 8) {
             translateX = "-15%";
             arrowLeft = "15%";
@@ -110,7 +110,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             translateX = "-85%";
             arrowLeft = "85%";
           }
-          
+
           return (
             <div
               style={{
@@ -133,32 +133,32 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                       {formatFullDate(hoveredDay.date)}
                     </span>
                   </div>
-                  
+
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-300">
                       <span>Tasks Done:</span>
                       <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {hoveredDay.tasksCompleted} / {hoveredDay.tasksTotal}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-300">
                       <span>Routines Completed:</span>
                       <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {hoveredDay.routinesCompleted}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-300">
                       <span>Productivity:</span>
                       <span className={`font-bold ${
                         hoveredDay.score === 3 ? "text-emerald-600 dark:text-emerald-400 text-glow" :
                         hoveredDay.score === 2 ? "text-cyan-600 dark:text-cyan-400" :
-                        hoveredDay.score === 1 ? "text-teal-600 dark:text-teal-500" : "text-slate-500"
+                        hoveredDay.score === 1 ? "text-teal-600 dark:text-teal-505" : "text-slate-500 dark:text-slate-300"
                       }`}>
                         {getProductivityColorDetails(hoveredDay.score).label.split(" (")[0]}
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800 text-[10px]">
                     {hoveredDay.score === 3 ? (
                       <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-bold animate-pulse">
@@ -169,21 +169,21 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                         ⚡ Keep it going!
                       </span>
                     ) : (
-                      <span className="text-slate-500 font-bold">No active completions</span>
+                      <span className="text-slate-500 dark:text-slate-300 font-bold">No active completions</span>
                     )}
                   </div>
                 </div>
                 {/* Tooltip pointer arrow */}
-                <div 
+                <div
                   style={{ left: arrowLeft }}
-                  className="absolute top-full -translate-x-1/2 -mt-[1px] border-x-[6px] border-x-transparent border-t-[6px] border-t-white/95 dark:border-t-slate-950/95" 
+                  className="absolute top-full -translate-x-1/2 -mt-[1px] border-x-[6px] border-x-transparent border-t-[6px] border-t-white/95 dark:border-t-slate-950/95"
                 />
               </motion.div>
             </div>
           );
         })()}
       </AnimatePresence>
-      
+
       {/* Header and Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-5 z-10 relative">
         <div>
@@ -198,17 +198,17 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
               Live Tracker
             </span>
           </div>
-          <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mt-1">
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">
             Tracking real routines & task completions from your live daily workflow.
           </p>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 z-10 relative">
-        
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 z-10 relative">
+
         {/* Current Streak */}
-        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-3 sm:p-4 gap-3 sm:gap-4 min-w-0 rounded-xl flex items-center transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
           <div className="p-3 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform duration-200">
             <Flame size={20} className="animate-pulse" />
           </div>
@@ -217,7 +217,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.currentStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Keep the fire burning!</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Keep the fire burning!</p>
           </div>
         </div>
 
@@ -231,7 +231,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.longestStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Your peak productivity</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Your peak productivity</p>
           </div>
         </div>
 
@@ -245,7 +245,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.totalProductiveDays} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Days with active completions</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Days with active completions</p>
           </div>
         </div>
 
@@ -259,26 +259,26 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.yearlyPercentage}%
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Average daily task completion rate</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Average daily task completion rate</p>
           </div>
         </div>
       </div>
 
       {/* Main Heatmap Container */}
       <div className="relative z-10">
-        
+
         {/* Loaded Heatmap Display */}
-        <div 
-          className="w-full bg-white/70 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800/50 rounded-xl p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
+        <div
+          className="w-full bg-white/70 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800/50 rounded-xl p-3 sm:p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
           ref={gridContainerRef}
         >
           {/* Inner Wrapper containing relative position for absolute elements */}
-          <div className="min-w-[760px] pb-2 relative">
+          <div className="min-w-[520px] sm:min-w-[640px] md:min-w-[760px] pb-2 relative">
 
               {/* Grid Header Month Labels */}
               <div className="grid grid-cols-[30px_1fr] gap-1 text-[10px] font-extrabold text-slate-700 dark:text-slate-400 mb-2.5 h-4 select-none relative">
                 <div /> {/* spacing for weekday column */}
-                <div className="grid grid-cols-53 gap-[3.5px] relative">
+                <div className="grid grid-cols-53 gap-[2px] sm:gap-[3px] md:gap-[3.5px] relative">
                   {monthLabels.map((lbl, idx) => (
                     <span
                       key={idx}
@@ -293,7 +293,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
 
               {/* Grid Body: Weekday Labels + 53x7 Calendar Squares */}
               <div className="grid grid-cols-[30px_1fr] gap-1 items-start">
-                
+
                 {/* Weekday Column */}
                 <div className="grid grid-rows-7 h-[112px] gap-[3.5px] items-center text-[9px] font-extrabold text-slate-800/90 dark:text-slate-400 uppercase select-none pt-0.5">
                   <span aria-hidden="true" className="h-3 text-right pr-1"></span>
@@ -310,7 +310,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                   variants={containerVariants}
                   initial="hidden"
                   animate="show"
-                  className="grid grid-cols-53 gap-[3.5px] h-[112px] relative"
+                  className="grid grid-cols-53 gap-[2px] sm:gap-[3px] md:gap-[3.5px] h-[84px] sm:h-[98px] md:h-[112px] relative"
                   role="grid"
                   aria-label="Yearly productivity contribution calendar"
                 >
@@ -331,14 +331,14 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                             <div
                               key={rowIdx}
                               role="gridcell"
-                              className="w-[13px] h-[13px] rounded-[3px] bg-transparent pointer-events-none"
+                              className="w-[10px] h-[10px] sm:w-[11px] sm:h-[11px] md:w-[13px] md:h-[13px] rounded-[3px] bg-transparent pointer-events-none"
                             />
                           );
                         }
 
                         const colorDetails = getProductivityColorDetails(day.score);
                         const isPerfect = day.score === 3;
-                        
+
                         // Check legend hover filter conditions
                         const isDimmed = activeLegendScore !== null && day.score !== activeLegendScore;
                         const isHighlighted = activeLegendScore !== null && day.score === activeLegendScore;
@@ -358,7 +358,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                               if (e.key === "Escape") handleInteractionEnd();
                             }}
                             className={`
-                              w-[13px] h-[13px] rounded-[3px] cursor-pointer outline-none relative transition-all duration-300
+                             w-[10px] h-[10px] sm:w-[11px] sm:h-[11px] md:w-[13px] md:h-[13px] rounded-[3px] cursor-pointer outline-none relative transition-all duration-300
                               border border-transparent
                               ${colorDetails.bgClass}
                               ${isPerfect ? colorDetails.glowClass : ""}
@@ -386,7 +386,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
           <HelpCircle size={13} className="text-slate-700 dark:text-slate-500" />
           <span>Hover / Focus cells for details. Hover legend intensities to filter.</span>
         </div>
-        
+
         {/* Interactive Legend Scale */}
         <div className="flex items-center gap-2.5">
           <span className="text-[10px] text-slate-700 dark:text-slate-500 font-extrabold uppercase select-none">Less</span>
